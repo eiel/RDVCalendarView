@@ -55,84 +55,97 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        _dayCells = [[NSMutableArray alloc] initWithCapacity:31];
-        _visibleCells = [[NSMutableArray alloc] initWithCapacity:31];
-        
-        _visibleSeparators = [[NSMutableArray alloc] initWithCapacity:12];
-        _separators = [[NSMutableArray alloc] initWithCapacity:12];
-        
-        // Setup defaults
-        
-        _currentDayColor = [UIColor colorWithRed:80/255.0 green:200/255.0 blue:240/255.0 alpha:1.0];
-        _selectedDayColor = [UIColor grayColor];
-        _separatorColor = [UIColor lightGrayColor];
-        
-        _separatorEdgeInsets = UIEdgeInsetsZero;
-        _dayCellEdgeInsets = UIEdgeInsetsZero;
-        
-        _dayCellClass = [RDVCalendarDayCell class];
-        
-        _weekDayHeight = 30.0f;
-        
-        // Setup header view
-        
-        _monthLabel = [[UILabel alloc] init];
-        [_monthLabel setFont:[UIFont systemFontOfSize:22]];
-        [_monthLabel setTextColor:[UIColor blackColor]];
-        [_monthLabel setTextAlignment:NSTextAlignmentCenter];
-        [self addSubview:_monthLabel];
-        
-        _backButton = [[UIButton alloc] init];
-        [_backButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        [_backButton setTitle:@"Prev" forState:UIControlStateNormal];
-        [_backButton addTarget:self action:@selector(showPreviousMonth)
-              forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:_backButton];
-        
-        _forwardButton = [[UIButton alloc] init];
-        [_forwardButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        [_forwardButton setTitle:@"Next" forState:UIControlStateNormal];
-        [_forwardButton addTarget:self action:@selector(showNextMonth)
-                 forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:_forwardButton];
-        
-        [self setupWeekDays];
-        
-        // Setup calendar
-        
-        NSCalendar *calendar = [self calendar];
-        
-        _currentDay = [calendar components:NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit fromDate:[NSDate date]];
-        
-        NSDate *currentDate = [NSDate date];
-        
-        _month = [calendar components:NSYearCalendarUnit|
-                                      NSMonthCalendarUnit|
-                                      NSDayCalendarUnit|
-                                      NSWeekdayCalendarUnit|
-                                      NSCalendarCalendarUnit
-                             fromDate:currentDate];
-        _month.day = 1;
-        
-        [self updateMonthLabelMonth:_month];
-        
-        [self updateMonthViewMonth:_month];
-        
-        NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-        
-        [defaultCenter addObserver:self
-                         selector:@selector(currentLocaleDidChange:)
-                             name:NSCurrentLocaleDidChangeNotification
-                           object:nil];
-        
-        [defaultCenter addObserver:self
-                          selector:@selector(deviceDidChangeOrientation:)
-                              name:UIDeviceOrientationDidChangeNotification
-                            object:nil];
-        
-        _orientation = [[UIApplication sharedApplication] statusBarOrientation];
+        [self _init];
     }
     return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self _init];
+    }
+    return self;
+}
+
+- (void)_init {
+    _dayCells = [[NSMutableArray alloc] initWithCapacity:31];
+    _visibleCells = [[NSMutableArray alloc] initWithCapacity:31];
+
+    _visibleSeparators = [[NSMutableArray alloc] initWithCapacity:12];
+    _separators = [[NSMutableArray alloc] initWithCapacity:12];
+
+    // Setup defaults
+
+    _currentDayColor = [UIColor colorWithRed:80/255.0 green:200/255.0 blue:240/255.0 alpha:1.0];
+    _selectedDayColor = [UIColor grayColor];
+    _separatorColor = [UIColor lightGrayColor];
+
+    _separatorEdgeInsets = UIEdgeInsetsZero;
+    _dayCellEdgeInsets = UIEdgeInsetsZero;
+
+    _dayCellClass = [RDVCalendarDayCell class];
+
+    _weekDayHeight = 30.0f;
+
+    // Setup header view
+
+    _monthLabel = [[UILabel alloc] init];
+    [_monthLabel setFont:[UIFont systemFontOfSize:22]];
+    [_monthLabel setTextColor:[UIColor blackColor]];
+    [_monthLabel setTextAlignment:NSTextAlignmentCenter];
+    [self addSubview:_monthLabel];
+
+    _backButton = [[UIButton alloc] init];
+    [_backButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [_backButton setTitle:@"Prev" forState:UIControlStateNormal];
+    [_backButton addTarget:self action:@selector(showPreviousMonth)
+          forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_backButton];
+
+    _forwardButton = [[UIButton alloc] init];
+    [_forwardButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [_forwardButton setTitle:@"Next" forState:UIControlStateNormal];
+    [_forwardButton addTarget:self action:@selector(showNextMonth)
+             forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_forwardButton];
+
+    [self setupWeekDays];
+
+    // Setup calendar
+
+    NSCalendar *calendar = [self calendar];
+
+    _currentDay = [calendar components:NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit fromDate:[NSDate date]];
+
+    NSDate *currentDate = [NSDate date];
+
+    _month = [calendar components:NSYearCalendarUnit|
+              NSMonthCalendarUnit|
+              NSDayCalendarUnit|
+              NSWeekdayCalendarUnit|
+              NSCalendarCalendarUnit
+                         fromDate:currentDate];
+    _month.day = 1;
+
+    [self updateMonthLabelMonth:_month];
+
+    [self updateMonthViewMonth:_month];
+
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+
+    [defaultCenter addObserver:self
+                      selector:@selector(currentLocaleDidChange:)
+                          name:NSCurrentLocaleDidChangeNotification
+                        object:nil];
+
+    [defaultCenter addObserver:self
+                      selector:@selector(deviceDidChangeOrientation:)
+                          name:UIDeviceOrientationDidChangeNotification
+                        object:nil];
+
+    _orientation = [[UIApplication sharedApplication] statusBarOrientation];
 }
 
 - (void)dealloc {
